@@ -1,0 +1,35 @@
+perception: True # Whether to use the perception layer.
+checkpoint_path: "" # Load a perception model checkpoint from this path.
+load_step: 0 # Load a perception model trained on this many timesteps (0 if choose max possible)
+
+# Model type:
+#  - `state`: simply returns the environment's state variable.
+#  - `joint_obs`: concatenates all observations.
+#  - `masked_joint_obs`: concatenates all observations and masks them to fake communication failures (check train_comm_p argument).
+#  - `mdrnn`: hybrid world model but without the AE's (only forward model).
+
+# Sampling schemes for train_comm_p:
+#  - float value: rate (probability) at which communication (observations sharing) occurs during training (if = 1.0 then equals to joint_obs)
+#  - "uniform_sampling": rate is randomly sample from U(0,1).
+#  - "extremes_sampling": rate is randomly chosen from {0, 1}
+#  - "extremes_and_middle_sampling": rate is randomly chosen from {0, 0.5, 1}
+#  - "uniform_and_extremes_sampling": rate is randomly chosen from {0, 1, U(0,1)}
+
+model_type: "mdrnn" # `state`, `joint_obs`, `masked_joint_obs`, or `mdrnn`,
+
+# Model hyperparameters.
+comm_at_t0: True                  # (for `masked_joint_obs`, `wm` and `mdrnn`) Whether to force communication at t=0.
+hidden_dim: 128                   # (Only `mdrnn`) LSTM hidden dim.
+append_masks_to_rl_input: True    # (Only 'mdrnn' and 'masked_joint_obs') Use masks for RL input
+n_gaussians: 1                    # (Only `mdrnn`) Number of Gaussians for MDN-RNN (predictive model).
+train_comm_p: "uniform_sampling"
+
+# Training Hyperparameters
+learning_rate: 0.001
+grad_clip: 1.0 # Grad clip with value given by this variable. If no arg (None) then no grad clip.
+
+# Logging and model saving options.
+# (Models are saved in "/results/perception_models/" folder).
+trainer_log_interval: 10_000
+save_model: True
+save_model_interval: 250_000
